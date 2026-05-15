@@ -32,34 +32,25 @@ logger = logging.getLogger(__name__)
 def load_catalog() -> List[dict]:
     """Load assessment catalog from JSON"""
     
-    # Try multiple paths (dev + production)
-    possible_paths = [
-        # Development: from project root
-        "data/assessments.json",
-        # Docker/Railway: from src directory
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "data",
-            "assessments.json"
-        ),
-        # Explicit environment variable
-        os.getenv("CATALOG_PATH"),
-    ]
+    # Calculate app root directory
+    # src/main.py -> /app/src/main.py
+    # dirname -> /app/src
+    # dirname(dirname) -> /app
+    app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    catalog_path = os.path.join(app_root, "data", "assessments.json")
     
-    catalog_path = None
+    logger.info(f"App root directory: {app_root}")
+    logger.info(f"Catalog path: {catalog_path}")
+    logger.info(f"Catalog exists: {os.path.exists(catalog_path)}")
     
-    # Find first existing path
-    for path in possible_paths:
-        if path and os.path.exists(path):
-            catalog_path = path
-            logger.info(f"Found catalog at: {catalog_path}")
-            break
-    
-    if not catalog_path:
-        logger.error(
-            f"Catalog not found in any location: {possible_paths}"
-        )
+    if not os.path.exists(catalog_path):
+        logger.error(f"Catalog not found at {catalog_path}")
+        try:
+            logger.info(f"Contents of {app_root}:")
+            for item in os.listdir(app_root):
+                logger.info(f"  - {item}")
+        except Exception as e:
+            logger.error(f"Cannot list directory: {e}")
         return []
     
     try:
@@ -72,12 +63,12 @@ def load_catalog() -> List[dict]:
         
         return catalog
     
-    except FileNotFoundError:
-        logger.error(f"Catalog not found at {catalog_path}")
-        return []
-    
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in catalog: {e}")
+        return []
+    
+    except Exception as e:
+        logger.error(f"Error loading catalog: {e}")
         return []
 
 

@@ -10,7 +10,6 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 
-
 from models.api_models import (
     ChatRequest,
     ChatResponse,
@@ -32,26 +31,51 @@ logger = logging.getLogger(__name__)
 # Load catalog
 def load_catalog() -> List[dict]:
     """Load assessment catalog from JSON"""
-
-    catalog_path = os.getenv(
-        "CATALOG_PATH",
-        "data/assessments.json"
-    )
-
+    
+    # Try multiple paths (dev + production)
+    possible_paths = [
+        # Development: from project root
+        "data/assessments.json",
+        # Docker/Railway: from src directory
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "data",
+            "assessments.json"
+        ),
+        # Explicit environment variable
+        os.getenv("CATALOG_PATH"),
+    ]
+    
+    catalog_path = None
+    
+    # Find first existing path
+    for path in possible_paths:
+        if path and os.path.exists(path):
+            catalog_path = path
+            logger.info(f"Found catalog at: {catalog_path}")
+            break
+    
+    if not catalog_path:
+        logger.error(
+            f"Catalog not found in any location: {possible_paths}"
+        )
+        return []
+    
     try:
         with open(catalog_path, 'r', encoding='utf-8') as f:
             catalog = json.load(f)
-
+        
         logger.info(
             f"Loaded {len(catalog)} assessments from {catalog_path}"
         )
-
+        
         return catalog
-
+    
     except FileNotFoundError:
         logger.error(f"Catalog not found at {catalog_path}")
         return []
-
+    
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in catalog: {e}")
         return []
@@ -71,7 +95,7 @@ app = FastAPI(
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-
+    
     return {
         "status": "healthy",
         "service": "shl-recommender",
@@ -86,36 +110,29 @@ async def chat(request: ChatRequest):
     Chat endpoint - accepts conversation history,
     returns recommendations.
     """
-
+    
     # Validate input
     if not request.messages:
-
         logger.error("No messages in request")
-
         raise HTTPException(
             status_code=400,
             detail="No messages provided"
         )
-
+    
     try:
-
         logger.info(
             f"Chat request with {len(request.messages)} messages"
         )
-
+        
         last_message = request.messages[-1].content
-
         logger.info(f"Last message: {last_message}")
-
-      
-
+        
         # First turn
         if len(request.messages) == 1:
-
             logger.info(
                 "First turn - asking for clarification"
             )
-
+            
             return ChatResponse(
                 reply=(
                     "Hello! I'm the SHL Assessment Recommender.\n\n"
@@ -128,34 +145,38 @@ async def chat(request: ChatRequest):
                 recommendations=[],
                 end_of_conversation=False,
             )
-
-        # Simple keyword matching (instead of BM25)
+        
+        # Simple keyword matching
         logger.info(
             f"Searching assessments for query: {last_message}"
         )
-
+        
         search_terms = last_message.lower().split()
         results = []
-
+        
         # Simple search logic
         for assessment in CATALOG:
             assessment_name = assessment['name'].lower()
             assessment_type = assessment.get('test_type', '').lower()
-            assessment_skills = ' '.join(assessment.get('skills', [])).lower()
-
+            assessment_skills = ' '.join(
+                assessment.get('skills', [])
+            ).lower()
+            
             # Check if any search term matches
             for term in search_terms:
-                if term in assessment_name or term in assessment_type or term in assessment_skills:
+                if (term in assessment_name or
+                    term in assessment_type or
+                    term in assessment_skills):
                     results.append(assessment)
                     break
-
+        
         # Limit to top 5 results
         results = results[:5]
-
+        
         logger.info(
             f"Found {len(results)} matching assessments"
         )
-
+        
         recommendations = [
             AssessmentReference(
                 name=assessment['name'],
@@ -164,14 +185,13 @@ async def chat(request: ChatRequest):
             )
             for assessment in results
         ]
-
+        
         # No results case
         if not recommendations:
-
             logger.warning(
                 "No matching assessments found"
             )
-
+            
             return ChatResponse(
                 reply=(
                     "I couldn't find any matching assessments "
@@ -183,7 +203,7 @@ async def chat(request: ChatRequest):
                 recommendations=[],
                 end_of_conversation=False,
             )
-
+        
         # Success response
         return ChatResponse(
             reply=(
@@ -193,17 +213,16 @@ async def chat(request: ChatRequest):
             recommendations=recommendations,
             end_of_conversation=True,
         )
-
+    
     except HTTPException:
         raise
-
+    
     except Exception as e:
-
         logger.error(
             f"Error in chat endpoint: {e}",
             exc_info=True
         )
-
+        
         raise HTTPException(
             status_code=500,
             detail=str(e)
@@ -211,23 +230,23 @@ async def chat(request: ChatRequest):
 
 
 if __name__ == "__main__":
-
+    
     import uvicorn
-
+    
     port = int(os.getenv("PORT", 8000))
-
+    
     logger.info(
         f"Starting SHL Recommender on port {port}"
     )
-
+    
     logger.info(
         f"Loaded {len(CATALOG)} assessments"
     )
-
+    
     logger.info(
         f"API docs: http://localhost:{port}/docs"
     )
-
+    
     uvicorn.run(
         app,
         host="0.0.0.0",

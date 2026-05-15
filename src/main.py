@@ -10,17 +10,11 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 
-from src.models.api_models import (
+
+from models.api_models import (
     ChatRequest,
     ChatResponse,
     AssessmentReference,
-)
-
-from src.retrieval.bm25_search import search_engine
-
-from src.guardrails.basic_guards import (
-    is_injection_attempt,
-    is_out_of_scope,
 )
 
 # Load environment variables
@@ -113,44 +107,9 @@ async def chat(request: ChatRequest):
 
         logger.info(f"Last message: {last_message}")
 
-        # -----------------------------
-        # GUARDRAILS
-        # -----------------------------
+      
 
-        if is_injection_attempt(last_message):
-
-            logger.warning(
-                "Injection attempt detected"
-            )
-
-            return ChatResponse(
-                reply=(
-                    "I detected a suspicious request. "
-                    "I can only help with SHL assessments."
-                ),
-                recommendations=[],
-                end_of_conversation=True,
-            )
-
-        if is_out_of_scope(last_message):
-
-            logger.warning(
-                "Out-of-scope request detected"
-            )
-
-            return ChatResponse(
-                reply=(
-                    "That's outside my scope. "
-                    "I focus on SHL assessment recommendations."
-                ),
-                recommendations=[],
-                end_of_conversation=True,
-            )
-
-        # -----------------------------
-        # FIRST TURN
-        # -----------------------------
-
+        # First turn
         if len(request.messages) == 1:
 
             logger.info(
@@ -170,18 +129,28 @@ async def chat(request: ChatRequest):
                 end_of_conversation=False,
             )
 
-        # -----------------------------
-        # SEARCH
-        # -----------------------------
-
+        # Simple keyword matching (instead of BM25)
         logger.info(
             f"Searching assessments for query: {last_message}"
         )
 
-        results = search_engine.search(
-            last_message,
-            top_k=5
-        )
+        search_terms = last_message.lower().split()
+        results = []
+
+        # Simple search logic
+        for assessment in CATALOG:
+            assessment_name = assessment['name'].lower()
+            assessment_type = assessment.get('test_type', '').lower()
+            assessment_skills = ' '.join(assessment.get('skills', [])).lower()
+
+            # Check if any search term matches
+            for term in search_terms:
+                if term in assessment_name or term in assessment_type or term in assessment_skills:
+                    results.append(assessment)
+                    break
+
+        # Limit to top 5 results
+        results = results[:5]
 
         logger.info(
             f"Found {len(results)} matching assessments"
@@ -196,10 +165,7 @@ async def chat(request: ChatRequest):
             for assessment in results
         ]
 
-        # -----------------------------
-        # NO RESULTS
-        # -----------------------------
-
+        # No results case
         if not recommendations:
 
             logger.warning(
@@ -218,10 +184,7 @@ async def chat(request: ChatRequest):
                 end_of_conversation=False,
             )
 
-        # -----------------------------
-        # SUCCESS RESPONSE
-        # -----------------------------
-
+        # Success response
         return ChatResponse(
             reply=(
                 f"I found {len(recommendations)} "

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "java-8-new",
+    "name": "Java 8 (New)",
+    "url": "https://www.shl.com/solutions/products/java-8/",
+    "test_type": "skills",
+    "duration_minutes": 45,
+    "description": "Technical assessment for Java 8 programming skills",
+    "skills": ["Java", "OOP", "Programming"]
+  },
+  {
+    "id": "opq32",
+    "name": "OPQ32",
+    "url": "https://www.shl.com/solutions/products/opq32/",
+    "test_type": "personality",
+    "duration_minutes": 90,
+    "description": "Personality assessment measuring 32 dimensions",
+    "skills": ["Communication", "Leadership", "Teamwork"]
+  },
+  {
+    "id": "gsa",
+    "name": "GSA",
+    "url": "https://www.shl.com/solutions/products/gsa/",
+    "test_type": "ability",
+    "duration_minutes": 40,
+    "description": "General reasoning and cognitive ability assessment",
+    "skills": ["Reasoning", "Problem-solving", "Analysis"]
+  },
+  {
+    "id": "verbal-reasoning",
+    "name": "Verbal Reasoning",
+    "url": "https://www.shl.com/solutions/products/verbal-reasoning/",
+    "test_type": "reasoning",
+    "duration_minutes": 30,
+    "description": "Assessment of verbal comprehension and reasoning",
+    "skills": ["Communication", "Reading comprehension", "Logic"]
+  },
+  {
+    "id": "numerical-reasoning",
+    "name": "Numerical Reasoning",
+    "url": "https://www.shl.com/solutions/products/numerical-reasoning/",
+    "test_type": "reasoning",
+    "duration_minutes": 30,
+    "description": "Assessment of numerical problem-solving",
+    "skills": ["Mathematics", "Analysis", "Reasoning"]
+  }
+]

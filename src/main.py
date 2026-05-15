@@ -33,9 +33,8 @@ def load_catalog() -> List[dict]:
     """Load assessment catalog from JSON"""
     
     # Calculate app root directory
-    # src/main.py -> /app/src/main.py
-    # dirname -> /app/src
-    # dirname(dirname) -> /app
+    # In local dev: src/main.py is at project_root/src/main.py
+    # In Railway: /app/src/main.py
     app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     catalog_path = os.path.join(app_root, "data", "assessments.json")
     
@@ -58,7 +57,7 @@ def load_catalog() -> List[dict]:
             catalog = json.load(f)
         
         logger.info(
-            f"Loaded {len(catalog)} assessments from {catalog_path}"
+            f"✅ Loaded {len(catalog)} assessments from {catalog_path}"
         )
         
         return catalog

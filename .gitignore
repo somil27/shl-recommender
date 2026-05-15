@@ -1,29 +1,70 @@
-Python
-pycache/ *.py[cod] *$py.class *.so .Python build/ develop-eggs/ dist/ downloads/ eggs/ .eggs/ lib/ lib64/ parts/ sdist/ var/ wheels/ *.egg-info/ .installed.cfg *.egg
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-Virtual Environment
-venv/ ENV/ env/
+# Virtual Environment
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
 
-IDE
-.vscode/ .idea/ *.swp *.swo *~
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-Environment
-.env .env.local .env.*.local
+# Environment
+.env
+.env.local
+.env.*.local
 
-Data - Keep assessments.json tracked!
+# Data - Keep assessments.json tracked!
 data/vector_store/
+# data/assessments.json is tracked in git
 
-data/assessments.json ← REMOVED (commented out)
-*.db *.sqlite
+# Cache
+*.db
+*.sqlite
 
-Logs
-logs/ *.log
+# Logs
+logs/
+*.log
 
-OS
-.DS_Store Thumbs.db
+# OS
+.DS_Store
+Thumbs.db
 
-Testing
-.pytest_cache/ .coverage htmlcov/ .tox/
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
 
-Dependencies
+# Dependencies
 *.lock
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/

@@ -1,6 +1,6 @@
-# SHL Assessment Recommender
+# Assessment Recommender
 
-Multi-turn conversational agent for SHL assessment recommendations.
+Multi-turn conversational agent for assessment recommendations.
 
 ## Quick Start
 

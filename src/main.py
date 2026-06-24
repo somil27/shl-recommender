@@ -1,5 +1,5 @@
 """
-SHL Assessment Recommender - FastAPI Application with LLM Integration
+Assessment Recommender - FastAPI Application with LLM Integration
 """
 
 import os
@@ -108,7 +108,7 @@ except Exception as e:
 
 # Create FastAPI app
 app = FastAPI(
-    title="SHL Assessment Recommender",
+    title="Assessment Recommender",
     description="Multi-turn conversational agent with LLM for SHL assessment recommendations",
     version="2.0.0",
 )
@@ -121,7 +121,7 @@ app = FastAPI(
 async def root():
 
     return {
-        "message": "SHL Recommender API is running 🚀",
+        "message": "Recommender API is running 🚀",
         "version": "2.0.0",
         "llm_enabled": llm_service is not None,
         "docs": "/docs",

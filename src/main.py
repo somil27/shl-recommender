@@ -271,7 +271,7 @@ async def chat(request: ChatRequest):
 
             return ChatResponse(
                 reply=(
-                    "Hello! I'm the SHL Assessment Recommender.\n\n"
+                    "Hello! I'm the Assessment Recommender.\n\n"
                     f"I understand you're looking for: {last_message}\n\n"
                     f"{clarifying_q}\n\n"
                     "This will help me provide better recommendations."

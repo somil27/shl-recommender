@@ -108,8 +108,8 @@ except Exception as e:
 
 # Create FastAPI app
 app = FastAPI(
-    title="Assessment Recommender",
-    description="Multi-turn conversational agent with LLM for SHL assessment recommendations",
+    title="Intelligent Recommendation System",
+    description="Multi-turn conversational agent with LLM for assessment recommendations",
     version="2.0.0",
 )
 
